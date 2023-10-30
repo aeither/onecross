@@ -6,9 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ENSDomainData, TxsResponse } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
-import { Signer, ethers } from "ethers";
 import { useState } from "react";
-import { useEnsAddress } from "wagmi";
 
 if (!process.env.NEXT_PUBLIC_CHAINBASE_KEY)
   throw new Error("NEXT_PUBLIC_CHAINBASE_KEY not found");
@@ -107,7 +105,7 @@ export default function Home() {
           {/* Show txs */}
           {txs && (
             <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-              Domains
+              Transactions
             </h2>
           )}
           {txs && (
