@@ -257,10 +257,24 @@ export default function Home() {
               onClick={async () => {
                 setIsLoading(true);
                 try {
+                  await getNFTBalances();
+                } catch (error) {
+                  console.log(error);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            >
+              NFTs
+            </Button>
+
+            <Button
+              onClick={async () => {
+                setIsLoading(true);
+                try {
                   await getNativeBalance();
                   await getTokenBalances();
                   await getEthDomains();
-                  await getNFTBalances();
                   await getTxs();
                 } catch (error) {
                   console.log(error);
