@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-=======
-<div align="center">
-    <img src="https://github.com/aeither/friendtech-on-bos/assets/36173828/8d8d8c35-0953-4e6d-a405-387259afd3e9" alt="Logo" >
-</div>
-
 # OneCross
 
 Cross-chain wallet analytics.
