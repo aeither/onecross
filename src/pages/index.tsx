@@ -1,42 +1,39 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ENSDomainData } from "@/lib/types";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { Signer, ethers } from "ethers";
 import { useState } from "react";
+import { useEnsAddress } from "wagmi";
+
+if (!process.env.NEXT_PUBLIC_CHAINBASE_KEY)
+  throw new Error("NEXT_PUBLIC_CHAINBASE_KEY not found");
+const NEXT_PUBLIC_CHAINBASE_KEY = process.env.NEXT_PUBLIC_CHAINBASE_KEY;
 
 export default function Home() {
-  const [connectedAddress, setConnectedAddress] = useState("");
-  const [signer, setSigner] = useState<Signer>();
-
   const { open } = useWeb3Modal();
+  const [address, setAddress] = useState("");
 
-  const connectWallet = async () => {
-    const windowEthereum = (window as unknown as any).ethereum;
-    if (typeof windowEthereum !== "undefined") {
-      try {
-        // Request account access if needed
-        await windowEthereum.request({
-          method: "eth_requestAccounts",
-        });
+  // Fetch data
+  const getEthDomains = async () => {
+    const url = `https://api.chainbase.online/v1/account/ens?chain_id=1&address=${address}`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "x-api-key": NEXT_PUBLIC_CHAINBASE_KEY,
+      },
+    };
 
-        // Create an ethers provider instance
-        const provider = new ethers.providers.Web3Provider(windowEthereum);
-
-        // Get the selected account address
-        const accounts = await provider.listAccounts();
-        const selectedAddress = accounts[0];
-
-        // Update the connected address state
-        selectedAddress && setConnectedAddress(selectedAddress);
-
-        // Set the signer
-        const connectedSigner = provider.getSigner();
-        setSigner(connectedSigner);
-      } catch (error) {
-        console.error("Error connecting to wallet:", error);
-      }
-    } else {
-      console.error("Please install MetaMask to connect your wallet.");
-    }
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json: ENSDomainData) => {
+        console.log(json);
+        // json.data.map(data => {
+        //   data.expiration_time
+        // })
+      })
+      .catch((err) => console.error("error:" + err));
   };
 
   return (
@@ -46,24 +43,21 @@ export default function Home() {
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             Heading
           </h1>
-          <Button variant={"default"} onClick={() => open()}>
+          {/* <Button variant={"default"} onClick={() => open()}>
             Open Connect Modal
-          </Button>
+          </Button> */}
+          <Input
+            onChange={(e) => {
+              setAddress(e.target.value);
+            }}
+          />
 
           <Button
-            onClick={() => {
-              connectWallet();
+            onClick={async () => {
+              await getEthDomains();
             }}
           >
-            connectWallet
-          </Button>
-          <Button
-            onClick={() => {
-              alert("hello");
-              console.log("Hello");
-            }}
-          >
-            Hello
+            Search
           </Button>
         </div>
       </main>
