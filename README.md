@@ -11,7 +11,7 @@ Cross-chain wallet analytics.
 
 Try it out:
 
-https://prj.vercel.app/
+https://onecross.vercel.app
 
 ## Setup & Development
 
