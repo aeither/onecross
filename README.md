@@ -1,28 +1,47 @@
-# Create T3 App
+<div align="center">
+    <img src="https://github.com/aeither/friendtech-on-bos/assets/36173828/8d8d8c35-0953-4e6d-a405-387259afd3e9" alt="Logo" >
+</div>
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+# OneCross
 
-## What's next? How do I make an app with this?
+Cross-chain wallet analytics.
+- domain names owned
+- native token balance
+- token balances
+- nft balances
+- support 8 blockchains
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+# DEMO
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+Try it out:
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+https://prj.vercel.app/
 
-## Learn More
+## Setup & Development
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Initialize repo in the root:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+```
+bun install
+```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Start development server:
 
-## How do I deploy this?
+```
+bun run dev
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Techstack
+
+- nextjs
+- bun
+- chainbase
+
+## Screenshots
+
+![1](https://github.com/aeither/onecross/assets/36173828/201a8a62-0171-4ff8-a050-a6b8fe53a361)
+
+![2](https://github.com/aeither/onecross/assets/36173828/3b2e21f3-28be-4855-bc92-016e1c31597f)
+
+
+
