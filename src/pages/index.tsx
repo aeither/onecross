@@ -1,7 +1,15 @@
 import { columns } from "@/components/txs/columns";
 import { DataTable } from "@/components/txs/data-table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,10 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ENSDomainData, TxsResponse } from "@/lib/types";
+import { ENSDomainData, Token, TokenResponse, TxsResponse } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { useState } from "react";
+import { formatEther, hexToBigInt } from "viem";
 
 if (!process.env.NEXT_PUBLIC_CHAINBASE_KEY)
   throw new Error("NEXT_PUBLIC_CHAINBASE_KEY not found");
@@ -24,11 +33,15 @@ const NEXT_PUBLIC_CHAINBASE_KEY = process.env.NEXT_PUBLIC_CHAINBASE_KEY;
 
 export default function Home() {
   const { open } = useWeb3Modal();
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(
+    "0x064Bd35c9064fC3e628a3BE3310a1cf65488103D",
+  );
   const [domains, setDomains] = useState<ENSDomainData>();
   const [txs, setTxs] = useState<TxsResponse>();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState("1");
+  const [nativeBalance, setNativeBalance] = useState("");
+  const [tokenBalances, setTokenBalances] = useState<TokenResponse>();
 
   // Fetch data
   const getEthDomains = async () => {
@@ -69,6 +82,44 @@ export default function Home() {
       .catch((err) => console.error("error:" + err));
   };
 
+  const getNativeBalance = async () => {
+    const url = `https://api.chainbase.online/v1/account/balance?chain_id=${selectedNetwork}&address=${address}`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "x-api-key": NEXT_PUBLIC_CHAINBASE_KEY,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
+        setNativeBalance(formatEther(hexToBigInt(json.data), "wei"));
+      })
+      .catch((err) => console.error("error:" + err));
+  };
+
+  const getTokenBalances = async () => {
+    const url = `https://api.chainbase.online/v1/account/tokens?chain_id=${selectedNetwork}&address=${address}&limit=20&page=1`;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "x-api-key": NEXT_PUBLIC_CHAINBASE_KEY,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json: TokenResponse) => {
+        console.log(json);
+        setTokenBalances(json);
+      })
+      .catch((err) => console.error("error:" + err));
+  };
+
   function SelectNetwork() {
     const networks = [
       { name: "Ethereum", value: "1" },
@@ -105,6 +156,36 @@ export default function Home() {
     );
   }
 
+  function TokenCard({ token }: { token: Token }) {
+    return (
+      <Card className="w-[350px]">
+        {/* balance (format), current_usd_price, logos[0].uri, name, symbol, urls[0].url */}
+        <CardHeader>
+          <CardTitle>{token.name}</CardTitle>
+          <CardDescription>
+            <div className="flex flex-col gap-4 mt-4">
+              <Avatar>
+                <AvatarImage src={token.logos[0] && token.logos[0].uri} />
+                <AvatarFallback>AA</AvatarFallback>
+              </Avatar>
+              <div>
+                <Badge>{token.symbol}</Badge>
+              </div>
+              <div>
+                Balance:{" "}
+                {formatEther(
+                  hexToBigInt(token.balance as `0x${string}`),
+                  "wei",
+                )}
+              </div>
+            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>{token.current_usd_price}</CardContent>
+      </Card>
+    );
+  }
+
   return (
     <>
       <main className="flex min-h-[calc(100vh-64px)] w-full flex-col">
@@ -117,7 +198,7 @@ export default function Home() {
           </Button> */}
           <div className="flex w-full max-w-sm items-center space-x-2">
             <Input
-              defaultValue="0x064Bd35c9064fC3e628a3BE3310a1cf65488103D"
+              placeholder="0x064Bd35c9064fC3e628a3BE3310a1cf65488103D"
               onChange={(e) => {
                 setAddress(e.target.value);
               }}
@@ -127,8 +208,10 @@ export default function Home() {
               onClick={async () => {
                 setIsLoading(true);
                 try {
-                  // await getEthDomains();
-                  await getTxs();
+                  // await getNativeBalance();
+                  await getTokenBalances();
+                  await getEthDomains();
+                  // await getTxs();
                 } catch (error) {
                   console.log(error);
                 } finally {
@@ -147,21 +230,36 @@ export default function Home() {
           )}
 
           {/* Show addess domains */}
+          {nativeBalance && (
+            <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+              Balance - {nativeBalance} ETH
+            </h2>
+          )}
+          {tokenBalances?.data.map((token) => (
+            <>
+              <div className="flex gap-4">
+                <TokenCard token={token} />
+              </div>
+            </>
+          ))}
+
+          {/* Show addess domains */}
           {domains && (
             <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
               Domains
             </h2>
           )}
-          {domains?.data.map((domain) => (
-            <>
-              <div className="flex gap-4">
-                <p className="leading-7 [&:not(:first-child)]:mt-6">
-                  {formatDate(domain.expiration_time)}
-                </p>
-                <Badge>{domain.name}</Badge>
-              </div>
-            </>
-          ))}
+          {domains &&
+            domains.data.map((domain) => (
+              <>
+                <div className="flex gap-4">
+                  <p className="leading-7 [&:not(:first-child)]:mt-6">
+                    {formatDate(domain.expiration_time)}
+                  </p>
+                  <Badge>{domain.name}</Badge>
+                </div>
+              </>
+            ))}
 
           {/* Show txs */}
           {txs && (

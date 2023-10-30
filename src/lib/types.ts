@@ -44,3 +44,21 @@ export interface TxsResponse {
   message: string;
   data: TxsData[];
 }
+
+export type Token = {
+  balance: string;
+  contract_address: string;
+  current_usd_price: number;
+  decimals: number;
+  logos: { uri: string }[];
+  name: string;
+  symbol: string;
+  total_supply: string;
+  urls: string[];
+};
+
+export type TokenResponse = {
+  code: number;
+  message: string;
+  data: Token[];
+};
