@@ -1,6 +1,8 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ENSDomainData } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { Signer, ethers } from "ethers";
 import { useState } from "react";
@@ -13,6 +15,7 @@ const NEXT_PUBLIC_CHAINBASE_KEY = process.env.NEXT_PUBLIC_CHAINBASE_KEY;
 export default function Home() {
   const { open } = useWeb3Modal();
   const [address, setAddress] = useState("");
+  const [domains, setDomains] = useState<ENSDomainData>();
 
   // Fetch data
   const getEthDomains = async () => {
@@ -29,6 +32,7 @@ export default function Home() {
       .then((res) => res.json())
       .then((json: ENSDomainData) => {
         console.log(json);
+        setDomains(json);
         // json.data.map(data => {
         //   data.expiration_time
         // })
@@ -38,7 +42,7 @@ export default function Home() {
 
   return (
     <>
-      <main className=" flex min-h-[calc(100vh-64px)] w-full flex-col">
+      <main className="flex min-h-[calc(100vh-64px)] w-full flex-col">
         <div className="container flex w-full flex-col gap-4 py-4">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
             Heading
@@ -59,6 +63,20 @@ export default function Home() {
           >
             Search
           </Button>
+
+          <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+            Domains
+          </h2>
+          {domains?.data.map((domain) => (
+            <>
+              <div className="flex gap-4">
+                <p className="leading-7 [&:not(:first-child)]:mt-6">
+                  {formatDate(domain.expiration_time)}
+                </p>
+                <Badge>{domain.name}</Badge>
+              </div>
+            </>
+          ))}
         </div>
       </main>
     </>
