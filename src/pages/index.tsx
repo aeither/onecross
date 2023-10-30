@@ -3,6 +3,16 @@ import { DataTable } from "@/components/txs/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ENSDomainData, TxsResponse } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
@@ -17,6 +27,8 @@ export default function Home() {
   const [address, setAddress] = useState("");
   const [domains, setDomains] = useState<ENSDomainData>();
   const [txs, setTxs] = useState<TxsResponse>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState("1");
 
   // Fetch data
   const getEthDomains = async () => {
@@ -39,7 +51,7 @@ export default function Home() {
   };
 
   const getTxs = async () => {
-    const url = `https://api.chainbase.online/v1/account/txs?chain_id=1&address=${address}&page=1&limit=20`;
+    const url = `https://api.chainbase.online/v1/account/txs?chain_id=${selectedNetwork}&address=${address}&page=1&limit=20`;
     const options = {
       method: "GET",
       headers: {
@@ -56,6 +68,42 @@ export default function Home() {
       })
       .catch((err) => console.error("error:" + err));
   };
+
+  function SelectNetwork() {
+    const networks = [
+      { name: "Ethereum", value: "1" },
+      { name: "Polygon", value: "137" },
+      { name: "BSC", value: "56" },
+      { name: "Avalanche", value: "43114" },
+      { name: "Arbitrum One", value: "42161" },
+      { name: "Optimism", value: "10" },
+      { name: "Base", value: "8453" },
+      { name: "zkSync", value: "324" },
+    ];
+
+    return (
+      <Select
+        onValueChange={(e) => {
+          setSelectedNetwork(e)
+          console.log("network: ", e);
+        }}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select a network" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Networks</SelectLabel>
+            {networks.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    );
+  }
 
   return (
     <>
@@ -77,13 +125,26 @@ export default function Home() {
 
             <Button
               onClick={async () => {
-                // await getEthDomains();
-                await getTxs();
+                setIsLoading(true);
+                try {
+                  // await getEthDomains();
+                  await getTxs();
+                } catch (error) {
+                  console.log(error);
+                } finally {
+                  setIsLoading(false);
+                }
               }}
             >
               Search
             </Button>
           </div>
+
+          <SelectNetwork />
+
+          {isLoading && (
+            <Skeleton className="h-[20px] w-[100px] rounded-full" />
+          )}
 
           {/* Show addess domains */}
           {domains && (
