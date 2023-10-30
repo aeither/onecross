@@ -62,3 +62,50 @@ export type TokenResponse = {
   message: string;
   data: Token[];
 };
+
+//  NFT
+type FloorPrice = {
+  address: string;
+  symbol: string;
+  value: string;
+};
+
+type Attribute = {
+  trait_type: string;
+  value: string;
+};
+
+type Metadata = {
+  attributes: Attribute[];
+  collection: string;
+  description: string;
+  image: string;
+  iyk_metadata_version: string;
+  name: string;
+};
+
+export type NFTToken = {
+  contract_address: string;
+  erc_type: string;
+  floor_prices: FloorPrice[];
+  image_uri: string;
+  metadata: Metadata;
+  mint_time: string;
+  mint_transaction_hash: string;
+  name: string;
+  owner: string;
+  rarity_rank: number;
+  rarity_score: number;
+  symbol: string;
+  token_id: string;
+  token_uri: string;
+  total: number;
+  total_string: string;
+  traits: Attribute[];
+};
+
+export type NFTTokenResponse = {
+  code: number;
+  message: string;
+  data: NFTToken[];
+};

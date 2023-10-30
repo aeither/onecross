@@ -21,7 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ENSDomainData, Token, TokenResponse, TxsResponse } from "@/lib/types";
+import {
+  ENSDomainData,
+  NFTToken,
+  NFTTokenResponse,
+  Token,
+  TokenResponse,
+  TxsResponse,
+} from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { useState } from "react";
@@ -42,6 +49,7 @@ export default function Home() {
   const [selectedNetwork, setSelectedNetwork] = useState("1");
   const [nativeBalance, setNativeBalance] = useState("");
   const [tokenBalances, setTokenBalances] = useState<TokenResponse>();
+  const [nftBalances, setNftBalances] = useState<NFTTokenResponse>();
 
   // Fetch data
   const getEthDomains = async () => {
@@ -120,6 +128,25 @@ export default function Home() {
       .catch((err) => console.error("error:" + err));
   };
 
+  const getNFTBalances = async () => {
+    const url = `https://api.chainbase.online/v1/account/nfts?chain_id=${selectedNetwork}&address=${address}&page=1&limit=20 `;
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "x-api-key": NEXT_PUBLIC_CHAINBASE_KEY,
+      },
+    };
+
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((json: NFTTokenResponse) => {
+        console.log(json);
+        setNftBalances(json);
+      })
+      .catch((err) => console.error("error:" + err));
+  };
+
   function SelectNetwork() {
     const networks = [
       { name: "Ethereum", value: "1" },
@@ -159,11 +186,10 @@ export default function Home() {
   function TokenCard({ token }: { token: Token }) {
     return (
       <Card className="w-[350px]">
-        {/* balance (format), current_usd_price, logos[0].uri, name, symbol, urls[0].url */}
         <CardHeader>
           <CardTitle>{token.name}</CardTitle>
           <CardDescription>
-            <div className="flex flex-col gap-4 mt-4">
+            <div className="mt-4 flex flex-col gap-4">
               <Avatar>
                 <AvatarImage src={token.logos[0] && token.logos[0].uri} />
                 <AvatarFallback>AA</AvatarFallback>
@@ -182,6 +208,29 @@ export default function Home() {
           </CardDescription>
         </CardHeader>
         <CardContent>{token.current_usd_price}</CardContent>
+      </Card>
+    );
+  }
+
+  function NftCard({ token }: { token: NFTToken }) {
+    return (
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>{token.name}</CardTitle>
+          <CardDescription>
+            <div className="mt-4 flex flex-col gap-4">
+              <Avatar>
+                <AvatarImage src={token.image_uri} />
+                <AvatarFallback>AA</AvatarFallback>
+              </Avatar>
+              <div>
+                <Badge>{token.symbol}</Badge>
+              </div>
+              <div>Balance: {token.floor_prices[0]?.value}</div>
+            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>ID: {token.token_id}</CardContent>
       </Card>
     );
   }
@@ -208,10 +257,11 @@ export default function Home() {
               onClick={async () => {
                 setIsLoading(true);
                 try {
-                  // await getNativeBalance();
+                  await getNativeBalance();
                   await getTokenBalances();
                   await getEthDomains();
-                  // await getTxs();
+                  await getNFTBalances();
+                  await getTxs();
                 } catch (error) {
                   console.log(error);
                 } finally {
@@ -239,6 +289,13 @@ export default function Home() {
             <>
               <div className="flex gap-4">
                 <TokenCard token={token} />
+              </div>
+            </>
+          ))}
+          {nftBalances?.data.map((nft) => (
+            <>
+              <div className="flex gap-4">
+                <NftCard token={nft} />
               </div>
             </>
           ))}
