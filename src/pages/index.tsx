@@ -84,7 +84,7 @@ export default function Home() {
     return (
       <Select
         onValueChange={(e) => {
-          setSelectedNetwork(e)
+          setSelectedNetwork(e);
           console.log("network: ", e);
         }}
       >
